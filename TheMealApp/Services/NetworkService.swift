@@ -22,11 +22,67 @@ class NetworkService {
     
     // Fetch all categories
     // https://www.themealdb.com/api/json/v1/1/categories.php
-    func fetchAllCategories() {}
+    func fetchCategories() async throws -> [CategoryResponse.Category] {
+        guard let url = URL(string: "https://www.themealdb.com/api/json/v1/1/categories.php") else {
+            throw NetworkError.invalidURL
+        }
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                throw NetworkError.badResponse
+            }
+            
+            guard !data.isEmpty else {
+                throw NetworkError.noData
+            }
+            
+            do {
+                let categoryResponse = try JSONDecoder().decode(CategoryResponse.self, from: data)
+                return categoryResponse.categories.sorted { $0.strCategory < $1.strCategory }
+//                return categoryResponse.categories.sorted { $0.name < $1.name }
+            } catch {
+                throw NetworkError.decodingError
+            }
+        } catch {
+            throw error
+        }
+    }
+    
+    
     
     // Filter by Category
     // https://www.themealdb.com/api/json/v1/1/filter.php?c=Seafood
-    func fetchCategories() {}
+    func fetchCategory(category: String) async throws -> [MealResponse.Meal] {
+        guard let url = URL(string: "https://www.themealdb.com/api/json/v1/1/filter.php?c=\(category)") else {
+            throw NetworkError.invalidURL
+        }
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                throw NetworkError.badResponse
+            }
+            
+            guard !data.isEmpty else {
+                throw NetworkError.noData
+            }
+            
+            do {
+                let mealResponse = try JSONDecoder().decode(MealResponse.self, from: data)
+                return mealResponse.meals.sorted { $0.strMeal < $1.strMeal }
+            } catch {
+                throw NetworkError.decodingError
+            }
+        } catch {
+            throw error
+        }
+    }
+    
+    
+            
     
     // Search by name
     // https://www.themealdb.com/api/json/v1/1/search.php?s=Arrabiata
