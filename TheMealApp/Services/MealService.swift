@@ -11,7 +11,7 @@ class MealService {
     
     private let networkService = NetworkService.shared
     
-    func fetchCategory(category: String) async throws -> [MealResponse.Meal] {
+    func fetchMeals(category: String) async throws -> [MealResponse.Meal] {
         guard let url = URL(string: "https://www.themealdb.com/api/json/v1/1/filter.php?c=\(category)") else {
             throw NetworkError.invalidURL
         }

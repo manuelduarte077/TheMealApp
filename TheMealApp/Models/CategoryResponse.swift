@@ -24,7 +24,7 @@ import Foundation
 public struct CategoryResponse: Codable {
     public var categories: [Category]
     
-    public struct Category: Identifiable, Codable {
+    public struct Category: Identifiable, Codable, Equatable {
         public var idCategory: String
         public var strCategory: String
         public var strCategoryThumb: String
